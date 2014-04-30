@@ -11,10 +11,12 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++0x")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c1x")
 
-find_library(ZMQ_LIBRARY NAMES zmq libzmq)
+#find_library(ZMQ_LIBRARY NAMES zmq libzmq)
+find_library(ZMQ_LIBRARY NAMES czmq)
 find_library(PROTOBUF_LIBS NAMES protobuf)
 find_library(AVAHI_LIBS NAMES avahi-client)
-find_path(ZMQ_INCLUDE zmq.h)
+find_library(AVAHI_COMMON_LIBS NAMES avahi-common)
+find_path(ZMQ_INCLUDE czmq.h)
 find_path(AVAHI_INCLUDE avahi-client/client.h)
 
 set(ZMQ_LIBS ${ZMQ_LIBRARY})
@@ -25,10 +27,10 @@ add_library(avahi++ SHARED Avahi.cpp Browser.cpp Registrar.cpp)
 target_link_libraries(avahi++ ${AVAHI_LIBS})
 
 add_executable(test_browse test_browse.cpp)
-target_link_libraries(test_browse avahi++)
+target_link_libraries(test_browse avahi++  ${AVAHI_LIBS}  ${AVAHI_COMMON_LIBS})
 
 add_executable(test_register test_register.cpp)
-target_link_libraries(test_register avahi++)
+target_link_libraries(test_register avahi++  ${AVAHI_LIBS}  ${AVAHI_COMMON_LIBS})
 
 add_custom_command(OUTPUT "${PROJECT_SOURCE_DIR}/protobuf/Services.pb.cc"
                           "${PROJECT_SOURCE_DIR}/protobuf/Services.pb.h"
@@ -39,7 +41,7 @@ add_custom_command(OUTPUT "${PROJECT_SOURCE_DIR}/protobuf/Services.pb.cc"
                    MAIN_DEPENDENCY "${PROJECT_SOURCE_DIR}/Services.proto")
 
 add_executable(directoryd main.cpp protobuf/Services.pb.cc)
-target_link_libraries(directoryd avahi++ ${ZMQ_LIBS} ${PROTOBUF_LIBS})
+target_link_libraries(directoryd avahi++ ${AVAHI_LIBS}  ${AVAHI_COMMON_LIBS} ${ZMQ_LIBS} ${PROTOBUF_LIBS})
 
 add_library(ddclient++ SHARED ddclient/ddclient.cpp ddclient/query.cpp ddclient/register.cpp protobuf/Services.pb.cc)
 target_link_libraries(ddclient++ ${ZMQ_LIBS} ${PROTOBUF_LIBS})

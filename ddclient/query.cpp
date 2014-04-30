@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include <zmq.hpp>
+#include <zmq.h>
 
 #include "../protobuf/Services.pb.h"
 #include "ddclient.hpp"
@@ -24,14 +24,29 @@ namespace DDClient {
 			txtfield->set_key(t.first);
 			txtfield->set_value(t.second);
 		}
-		zmq::message_t message(request.ByteSize());
-		request.SerializeToArray(message.data(), message.size());
+		zframe_t *sf = zframe_new(NULL, request.ByteSize());
+		assert (sf != NULL);
+		//zmq_msg_t message;
+		//assert(zmq_msg_init_size (&message, request.ByteSize()) == 0);
+		//		zmq::message_t message(request.ByteSize());
 
-		DDClient::instance().query_socket().send(message);
-		message.rebuild();
-		DDClient::instance().query_socket().recv(&message);
+		request.SerializeToArray(zframe_data(sf),zframe_size(sf));
+
+		int retval = zframe_send(&sf, DDClient::instance().query_socket(), 0);
+		assert(retval == 0);
+
+		//DDClient::instance().query_socket().send(message);
+		//message.rebuild();
+
+		zframe_t *rf = zframe_recv (DDClient::instance().query_socket());
+
+		//DDClient::instance().query_socket().recv(&message);
+
+
 		directoryd::ServiceReply reply;
-		reply.ParseFromArray(message.data(), message.size());
+		reply.ParseFromArray(zframe_data(rf),zframe_size(rf));
+		//message.data(), message.size());
+		zframe_destroy(&rf);
 
 		std::vector<Service> services;
 		if (reply.type() != directoryd::FIND) {

@@ -1,6 +1,6 @@
 #include <vector>
 #include <iostream>
-#include <zmq.hpp>
+#include <czmq.h>
 #include <string>
 #include <algorithm>
 #include "../protobuf/Services.pb.h"
@@ -66,14 +66,27 @@ namespace DDClient {
 			txtfield->set_key(t.first);
 			txtfield->set_value(t.second);
 		}
-		zmq::message_t message(request.ByteSize());
-		request.SerializeToArray(message.data(), message.size());
+		zframe_t *sf = zframe_new(NULL, request.ByteSize());
+		assert (sf != NULL);
+		request.SerializeToArray(zframe_data(sf),zframe_size(sf));
+		int retval = zframe_send(&sf, 
+					 DDClient::instance().register_socket(), 0);
+		assert(retval == 0);
+		// zmq::message_t message(request.ByteSize());
+		// request.SerializeToArray(message.data(), message.size());
 
-		DDClient::instance().register_socket().send(message);
-		message.rebuild();
-		DDClient::instance().register_socket().recv(&message);
+		// DDClient::instance().register_socket().send(message);
+		// message.rebuild();
+
+	
+
+		zframe_t *rf = zframe_recv (DDClient::instance().register_socket());
+		//		DDClient::instance().register_socket().recv(&message);
+
 		directoryd::ServiceReply reply;
-		reply.ParseFromArray(message.data(), message.size());
+		//reply.ParseFromArray(message.data(), message.size());
+		reply.ParseFromArray(zframe_data(rf),zframe_size(rf));
+		zframe_destroy(&rf);
 
 		if (reply.type() != directoryd::REGISTER) {
 			throw RegistrationError("Got back incorrect message type when trying to register.");
@@ -90,14 +103,29 @@ namespace DDClient {
 		request.set_type(directoryd::UNREGISTER);
 		auto *r = request.mutable_unregister();
 		r->set_name(name);
-		zmq::message_t message(request.ByteSize());
-		request.SerializeToArray(message.data(), message.size());
 
-		DDClient::instance().register_socket().send(message);
-		message.rebuild();
-		DDClient::instance().register_socket().recv(&message);
+		zframe_t *sf = zframe_new(NULL, request.ByteSize());
+		assert (sf != NULL);
+		request.SerializeToArray(zframe_data(sf),zframe_size(sf));
+		int retval = zframe_send(&sf, 
+					 DDClient::instance().register_socket(), 0);
+		assert(retval == 0);
+		// zmq::message_t message(request.ByteSize());
+		// request.SerializeToArray(message.data(), message.size());
+		// DDClient::instance().register_socket().send(message);
+		// message.rebuild();
+
+
+		// DDClient::instance().register_socket().recv(&message);
+		// directoryd::ServiceReply reply;
+		// reply.ParseFromArray(message.data(), message.size());
+		zframe_t *rf = zframe_recv (DDClient::instance().register_socket());
+		//		DDClient::instance().register_socket().recv(&message);
+
 		directoryd::ServiceReply reply;
-		reply.ParseFromArray(message.data(), message.size());
+		//reply.ParseFromArray(message.data(), message.size());
+		reply.ParseFromArray(zframe_data(rf),zframe_size(rf));
+		zframe_destroy(&rf);
 
 		if (reply.type() != directoryd::UNREGISTER) {
 			throw RegistrationError("Got back incorrect message type when trying to unregister.");
@@ -115,14 +143,32 @@ namespace DDClient {
 	void heartbeat() {
 		directoryd::ServiceRequest request;
 		request.set_type(directoryd::HEARTBEAT);
-		zmq::message_t message(request.ByteSize());
-		request.SerializeToArray(message.data(), message.size());
 
-		DDClient::instance().register_socket().send(message);
-		message.rebuild();
-		DDClient::instance().register_socket().recv(&message);
+		// zmq::message_t message(request.ByteSize());
+		// request.SerializeToArray(message.data(), message.size());
+		// DDClient::instance().register_socket().send(message);
+		// message.rebuild();
+
+		zframe_t *sf = zframe_new(NULL, request.ByteSize());
+		assert (sf != NULL);
+		request.SerializeToArray(zframe_data(sf),zframe_size(sf));
+		int retval = zframe_send(&sf, 
+					 DDClient::instance().register_socket(), 0);
+		assert(retval == 0);
+
+
+
+		// DDClient::instance().register_socket().recv(&message);
+		// directoryd::ServiceReply reply;
+		// reply.ParseFromArray(message.data(), message.size());
+
+		zframe_t *rf = zframe_recv (DDClient::instance().register_socket());
+		//		DDClient::instance().register_socket().recv(&message);
+
 		directoryd::ServiceReply reply;
-		reply.ParseFromArray(message.data(), message.size());
+		//reply.ParseFromArray(message.data(), message.size());
+		reply.ParseFromArray(zframe_data(rf),zframe_size(rf));
+		zframe_destroy(&rf);
 
 		if (reply.type() != directoryd::HEARTBEAT) {
 			throw RegistrationError("Got back incorrect message type when trying to send heartbeat.");

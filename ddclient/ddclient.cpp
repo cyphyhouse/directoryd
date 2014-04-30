@@ -3,18 +3,22 @@
 #include "ddclient.hpp"
 
 namespace DDClient {
-	DDClient::DDClient () : context_(1), query_socket_(context_, ZMQ_REQ), register_socket_(context_, ZMQ_REQ) {
-		GOOGLE_PROTOBUF_VERIFY_VERSION;
-		query_socket_.connect("ipc:///tmp/directoryd");
-		register_socket_.connect("ipc:///tmp/directoryd");
-	}
+    DDClient::DDClient () {
+	GOOGLE_PROTOBUF_VERIFY_VERSION;
+	context_ = zmq_ctx_new ();
+	query_socket_ = zmq_socket (context_, ZMQ_REQ);
+	register_socket_  = zmq_socket (context_, ZMQ_REQ);
 
-	DDClient::~DDClient () {
-		google::protobuf::ShutdownProtobufLibrary();
-	}
+	assert(zmq_connect (query_socket_,"ipc:///tmp/directoryd") == 0);
+	assert(zmq_connect (register_socket_,"ipc:///tmp/directoryd") == 0);
+    }
 
-	DDClient &DDClient::instance() {
-		static DDClient instance;
-		return instance;
-	}
+    DDClient::~DDClient () {
+	google::protobuf::ShutdownProtobufLibrary();
+    }
+
+    DDClient &DDClient::instance() {
+	static DDClient instance;
+	return instance;
+    }
 };

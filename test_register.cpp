@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>
 
 #include "Avahi.hpp"
 #include "Registrar.hpp"

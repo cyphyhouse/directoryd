@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>
 
 #include "Avahi.hpp"
 #include "Browser.hpp"
@@ -9,7 +10,7 @@ int main() {
 	Avahi::Browser browser("_hotdec._tcp");
 	sleep(2);
 	while (!browser.ready()) sleep(1);
-	auto result = browser.lookup_by_name("ruby-vision");
+	auto result = browser.lookup_by_name("fooservice");
 	cout << result.size() << endl;
 	result = browser.lookup_by_name("vision");
 	cout << result.size() << endl;
