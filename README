@@ -39,6 +39,7 @@ Usage
     directoryd [-dh]
         -d      launch as daemon
         -h      help
+        -D      dump protobuf messages as TextFormat
 
 directoryd should be used as a daemon that runs in the background. It
 creates a zeromq ipc socket in /tmp/directoryd.
