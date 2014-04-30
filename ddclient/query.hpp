@@ -9,19 +9,20 @@
 #include "ddclient.hpp"
 
 namespace DDClient {
-	struct Service {
-		std::string hostname;
-		int port;
-		std::map<std::string, std::string> txt;
-	};
+    struct Service {
+	std::string hostname;
+	int port;
+	std::map<std::string, std::string> txt;
+    };
 
-	std::vector<Service> find(std::map<std::string, std::string> const &txt, std::string const &name = std::string());
+    std::vector<Service> find(std::map<std::string, std::string> const &txt,
+			      std::string const &name = std::string());
 
-	class QueryError : public std::runtime_error {
-		public:
-			explicit QueryError (const std::string & what) : std::runtime_error(what) {};
-			explicit inline QueryError ();
-	};
+    class QueryError : public std::runtime_error {
+    public:
+	explicit QueryError (const std::string & what) : std::runtime_error(what) {};
+	explicit inline QueryError ();
+    };
 }
 
 #endif

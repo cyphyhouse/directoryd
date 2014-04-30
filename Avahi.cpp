@@ -22,43 +22,43 @@ using std::list;
 
 namespace Avahi {
 
-std::unique_ptr<AvahiTimeout, timeoutdeleter> set_timeout(int seconds, void (*callback)(AvahiTimeout *, void *), void *data)
-{
-    timeval tv;
-    //Avahi::instance().lock();
-    auto poll = avahi_threaded_poll_get(Avahi::instance().poll());
-    unique_ptr<AvahiTimeout, timeoutdeleter>
-        p(poll->timeout_new(poll, avahi_elapse_time(&tv, 1000*seconds, 0), callback, data));
-    //Avahi::instance().unlock();
-    return p;
-}
+    std::unique_ptr<AvahiTimeout, timeoutdeleter> set_timeout(int seconds, void (*callback)(AvahiTimeout *, void *), void *data)
+    {
+	timeval tv;
+	//Avahi::instance().lock();
+	auto poll = avahi_threaded_poll_get(Avahi::instance().poll());
+	unique_ptr<AvahiTimeout, timeoutdeleter>
+	    p(poll->timeout_new(poll, avahi_elapse_time(&tv, 1000*seconds, 0), callback, data));
+	//Avahi::instance().unlock();
+	return p;
+    }
 
-void update_timeout(std::unique_ptr<AvahiTimeout, timeoutdeleter> const &t, int seconds)
-{
-    timeval tv;
-    //Avahi::instance().lock();
-    auto poll = avahi_threaded_poll_get(Avahi::instance().poll());
-    poll->timeout_update(t.get(), avahi_elapse_time(&tv, 1000*seconds, 0));
-    //Avahi::instance().unlock();
-}
+    void update_timeout(std::unique_ptr<AvahiTimeout, timeoutdeleter> const &t, int seconds)
+    {
+	timeval tv;
+	//Avahi::instance().lock();
+	auto poll = avahi_threaded_poll_get(Avahi::instance().poll());
+	poll->timeout_update(t.get(), avahi_elapse_time(&tv, 1000*seconds, 0));
+	//Avahi::instance().unlock();
+    }
 
-void cancel_timeout(std::unique_ptr<AvahiTimeout, timeoutdeleter> const &t)
-{
-    //Avahi::instance().lock();
-    auto poll = avahi_threaded_poll_get(Avahi::instance().poll());
-    poll->timeout_update(t.get(), NULL);
-    //Avahi::instance().unlock();
-}
+    void cancel_timeout(std::unique_ptr<AvahiTimeout, timeoutdeleter> const &t)
+    {
+	//Avahi::instance().lock();
+	auto poll = avahi_threaded_poll_get(Avahi::instance().poll());
+	poll->timeout_update(t.get(), NULL);
+	//Avahi::instance().unlock();
+    }
 
-void Avahi::client_callback(AvahiClient *c, AvahiClientState state, void * data)
-{
-    assert(c);
-    assert(data);
-    Avahi *a = static_cast<Avahi *>(data);
+    void Avahi::client_callback(AvahiClient *c, AvahiClientState state, void * data)
+    {
+	assert(c);
+	assert(data);
+	Avahi *a = static_cast<Avahi *>(data);
 
-    /* Called whenever the client or server state changes */
+	/* Called whenever the client or server state changes */
 
-    switch (state) {
+	switch (state) {
         case AVAHI_CLIENT_S_RUNNING:
 
             /* The server has startup successfully and registered its host
@@ -94,7 +94,7 @@ void Avahi::client_callback(AvahiClient *c, AvahiClientState state, void * data)
 
         case AVAHI_CLIENT_CONNECTING:
             ;
+	}
     }
-}
 
 };

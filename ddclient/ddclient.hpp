@@ -3,24 +3,25 @@
 #include <czmq.h>
 
 namespace DDClient {
-class DDClient {
+    class DDClient {
 	void * context_;
 	void * query_socket_;
 	void * register_socket_;
 	DDClient ();
 	~DDClient ();
-public:
+
+    public:
 
 	void * &query_socket() {
-		return query_socket_;
+	    return query_socket_;
 	}
 
 	void * &register_socket() {
-		return register_socket_;
+	    return register_socket_;
 	}
 
 	static DDClient &instance();
-};
+    };
 
 }
 #endif

@@ -15,22 +15,36 @@
 
 #include "protobuf/Services.pb.h"
 
+#include <google/protobuf/text_format.h>
+using namespace google::protobuf;
+
 using namespace std;
 
+bool debug = false;
+
+
 struct ActiveServices {
+
     unique_ptr<AvahiTimeout, Avahi::timeoutdeleter> timeout;
+
     vector<Avahi::ServiceGroup *> service_groups;
+
     pair<string, unordered_map<string, ActiveServices*>*> *service_pair;
 
-    ActiveServices(int time, pair<string, unordered_map<string, ActiveServices*>*> *pp,
-		   Avahi::ServiceGroup *s) {
+    ActiveServices(int time,
+		   pair<string, unordered_map<string, ActiveServices*>*> *pp,
+		   Avahi::ServiceGroup *s)
+    {
 	/* Add the service to the service group */
 	service_groups.push_back(s);
 
-	/* Store the service (location, services) pair, for use by the timeout deleter */
+	/* Store the service (location, services) pair,
+	   for use by the timeout deleter
+	*/
 	service_pair = pp;
 
-	/* Set the timeout. If we don't get data from the service by the time it expires,
+	/* Set the timeout.
+	 *  If we don't get data from the service by the time it expires,
 	 * remove it
 	 */
 	auto t = Avahi::set_timeout(time, [](AvahiTimeout *timeout, void *data) {
@@ -46,7 +60,8 @@ struct ActiveServices {
 	swap(timeout, t);
     }
 
-    /* Whether or not the service expired, we need to delete the saved service pair */
+    /* Whether or not the service expired,
+       we need to delete the saved service pair */
     ~ActiveServices() {
 	delete service_pair;
 	for (auto &sg : service_groups) {
@@ -58,7 +73,8 @@ struct ActiveServices {
 /* Update timeouts for a particular service. This means we got data from the service,
  * either a heartbeat or another request, so we can assume it is still alive.
  */
-void update_timeouts(vector<string> const &header, unordered_map<string, ActiveServices*> &active_services)
+void update_timeouts(vector<string> const &header,
+		     unordered_map<string, ActiveServices*> &active_services)
 {
     /* We need to lock to avoid conflicts with the asynchronous timer in ActiveServices */
     Avahi::Avahi::instance().lock();
@@ -70,8 +86,10 @@ void update_timeouts(vector<string> const &header, unordered_map<string, ActiveS
 }
 
 /* Register a new service, or add new services to a service group */
-bool register_services(Avahi::Registrar &registrar, unordered_map<string, ActiveServices*> &active_services,
-		       vector<string> const &header, directoryd::ServiceRequest const &service)
+bool register_services(Avahi::Registrar &registrar,
+		       unordered_map<string, ActiveServices*> &active_services,
+		       vector<string> const &header,
+		       directoryd::ServiceRequest const &service)
 {
     if (service.has_register_() == false) {
 	return false;
@@ -103,7 +121,7 @@ bool register_services(Avahi::Registrar &registrar, unordered_map<string, Active
 	auto pp = new pair<string, unordered_map<string, ActiveServices*>*>(header.back(), &active_services);
 	active_services.insert({header.back(), new ActiveServices(2, pp, sg)});
     }
-    else { // service location exists 
+    else { // service location exists
 	auto service = active_services.find(header.back());
 	service->second->service_groups.push_back(sg);
 	Avahi::update_timeout(service->second->timeout, 2);
@@ -113,8 +131,11 @@ bool register_services(Avahi::Registrar &registrar, unordered_map<string, Active
 }
 
 /* Unregister a service */
-bool unregister_services(unordered_map<string, ActiveServices *> &active_services,
-			 vector<string> const &header, directoryd::ServiceRequest const &remove_service, std::string &fail_reason)
+bool unregister_services(unordered_map<string,
+			 ActiveServices *> &active_services,
+			 vector<string> const &header,
+			 directoryd::ServiceRequest const &remove_service,
+			 std::string &fail_reason)
 {
     if (remove_service.has_unregister() == false) {
 	fail_reason = "Invalid request: missing UNREGISTER field";
@@ -138,7 +159,8 @@ bool unregister_services(unordered_map<string, ActiveServices *> &active_service
     /* Check if the name we want to remove exists. If it does not, notify of failure as above.
      * Otherwise, remove the service, and notify the client of success */
     auto name = remove_service.unregister().name();
-    auto result = find_if(service->second->service_groups.begin(), service->second->service_groups.end(),
+    auto result = find_if(service->second->service_groups.begin(),
+			  service->second->service_groups.end(),
 			  [&name](Avahi::ServiceGroup *sg) {
 			      return sg->name() == name;
 			  });
@@ -153,7 +175,8 @@ bool unregister_services(unordered_map<string, ActiveServices *> &active_service
 	service->second->service_groups.erase(result);
     }
 
-    if (service->second->service_groups.empty()) { // remove group if no remaining services
+    // remove group if no remaining services
+    if (service->second->service_groups.empty()) {
 	auto as = active_services[header.back()];
 	active_services.erase(header.back());
 	delete as;
@@ -167,7 +190,8 @@ bool unregister_services(unordered_map<string, ActiveServices *> &active_service
 }
 
 /* Find matching services by txt value and optionally the name */
-bool find_services(Avahi::Browser const &browser, directoryd::ServiceRequest const &request,
+bool find_services(Avahi::Browser const &browser,
+		   directoryd::ServiceRequest const &request,
 		   std::vector<Avahi::Service> &result)
 {
     if (request.has_find() == false) {
@@ -189,7 +213,8 @@ bool find_services(Avahi::Browser const &browser, directoryd::ServiceRequest con
 	return true;
     };
 
-    if (request.find().has_name()) { // If we have a name, perform a combination search on name and txt
+    // If we have a name, perform a combination search on name and txt
+    if (request.find().has_name()) {
 	result = browser.lookup_by_name(request.find().name(), pred);
     }
     else { // Otherwise, just look for matching txt values in all services
@@ -199,8 +224,11 @@ bool find_services(Avahi::Browser const &browser, directoryd::ServiceRequest con
 }
 
 /* Send a reply to the client */
-void reply(void *socket, vector<string> const &header, directoryd::RequestType type,
-	   bool success, std::string const &result = std::string(),
+void reply(void *socket,
+	   vector<string> const &header,
+	   directoryd::RequestType type,
+	   bool success,
+	   std::string const &result = std::string(),
 	   std::vector<Avahi::Service> const &findresult = std::vector<Avahi::Service>())
 {
     directoryd::ServiceReply reply;
@@ -226,46 +254,45 @@ void reply(void *socket, vector<string> const &header, directoryd::RequestType t
 	}
     }
 
-    /* Serialize the protobuf message to binary */
-    // zmq::message_t message(reply.ByteSize());
-    // reply.SerializeToArray(message.data(), message.size());
+    string buffer;
+    if (debug && TextFormat::PrintToString(reply, &buffer)) {
+	fprintf(stderr, "reply: %s\n", buffer.c_str());
+    }
 
     zframe_t *sf = zframe_new(NULL, reply.ByteSize());
     assert (sf != NULL);
     reply.SerializeToArray(zframe_data(sf),zframe_size(sf));
-    // int retval = zframe_send(&sf, DDClient::instance().register_socket(), 0);
-    // assert(retval == 0);
-#if 0
-    /* Add in the ZMQ routing header data to get the message back to the origin */
-    zmq::message_t header_part;
-    for (auto &h : header) {
-	header_part.rebuild(h.length());
-	h.copy(static_cast<char *>(header_part.data()), h.length(), 0);
-	socket.send(header_part, ZMQ_SNDMORE);
-    }
-    header_part.rebuild(0);
-    socket.send(header_part, ZMQ_SNDMORE);
-    socket.send(message);
-#endif
+
     for (auto &h : header) {
 	int retval = zstr_sendm (socket,h.c_str());
 	assert(retval == 0);
     }
+
     int retval = zframe_send(&sf, socket, 0);
     assert(retval == 0);
 }
 
-void reply_result(void *socket, vector<string> const &header, directoryd::RequestType type,
-		  std::vector<Avahi::Service> const &findresult) {
+void reply_result(void *socket,
+		  vector<string> const &header,
+		  directoryd::RequestType type,
+		  std::vector<Avahi::Service> const &findresult)
+{
     reply(socket, header, type, true, std::string(), findresult);
 }
 
-void reply_success(void *socket, vector<string> const &header, directoryd::RequestType type,
-		   std::string const &result = std::string()) {
+void reply_success(void *socket,
+		   vector<string> const &header,
+		   directoryd::RequestType type,
+		   std::string const &result = std::string())
+{
     reply(socket, header, type, true, result);
 }
 
-void reply_failure(void *socket, vector<string> const &header, directoryd::RequestType type, std::string const &result) {
+void reply_failure(void *socket,
+		   vector<string> const &header,
+		   directoryd::RequestType type,
+		   std::string const &result)
+{
     reply(socket, header, type, false, result);
 }
 
@@ -280,10 +307,13 @@ int main(int argc, char *const argv[]) {
     int opt;
     bool daemonize = false;
     opterr = 0;
-    while ((opt = getopt(argc, argv, "hd")) != -1) {
+    while ((opt = getopt(argc, argv, "hdD")) != -1) {
 	switch(opt) {
 	case 'd':
 	    daemonize = true;
+	    break;
+	case 'D':
+	    debug = true;
 	    break;
 	case 'h':
 	default:
@@ -304,55 +334,44 @@ int main(int argc, char *const argv[]) {
 	unordered_map<string, ActiveServices*> active_services;
 
 	zctx_t *ctx = zctx_new();
-	void *socket = zsocket_new (ctx, ZMQ_XREP);
-	//retval = zsocket_bind (socket,"ipc:///tmp/directoryd");
+	void *socket = zsocket_new (ctx, ZMQ_ROUTER);
 	zsocket_bind (socket,"ipc:///tmp/directoryd");
-	chmod("/tmp/directoryd", S_IRWXO|S_IRWXU|S_IRWXG); // ???? XXX
+	chmod("/tmp/directoryd", S_IRWXO|S_IRWXU|S_IRWXG);
 
 	directoryd::ServiceRequest request;
 	bool success;
 	std::string fail_reason;
 	std::vector<Avahi::Service> result;
-	//zmq::message_t message;
 
 	/* Work loop; receive and process requests */
 	while (true) {
-
-#if 0
-	    message.rebuild();
-	    rc = socket.recv(&message);
-	    if (rc == false) {
+	    zmsg_t *reqmsg = zmsg_recv(socket);
+	    if (reqmsg == NULL)
 		continue;
-	    }
-	    vector<string> header;
-	    /* Extract and save ZMQ routing header from the message */
-	    do {
-		header.push_back(string((const char *)message.data(), message.size()));
-		message.rebuild();
-	    } while (socket.recv(&message) && message.size() > 0);
-	    rc = socket.recv(&message);
-	    if (rc == false) continue;
+	    if (debug)
+		zmsg_fprint (reqmsg, stderr);
+	    char *client = zmsg_popstr(reqmsg);
 
-	    /* Parse the request from the message binary */
-	    request.ParseFromString(string((const char *)message.data(), message.size()));
-#endif
-	    zframe_t *rxf = zframe_recv(socket);
+	    zframe_t *rxf = zmsg_pop(reqmsg);
 	    if (rxf == NULL)
 		continue;
-	    vector<string> header;
-	    /* Extract and save ZMQ routing header from the message */
-	    do {
-		header.push_back(string((const char *)zframe_data(rxf), zframe_size(rxf)));
-		zframe_destroy(&rxf);
-	    } while (((rxf = zframe_recv(socket)) != NULL) && (zframe_size(rxf) > 0));
-	    zframe_destroy(&rxf);
-	    rxf = zframe_recv(socket);
 
 	    request.ParseFromArray(zframe_data(rxf),zframe_size(rxf));
 	    zframe_destroy(&rxf);
 
+	    vector<string> header;
+	    header.push_back(string(client));
+	    free(client);
+	    zmsg_destroy(&reqmsg);
+
+	    string buffer;
+	    if (debug && TextFormat::PrintToString(request, &buffer)) {
+		fprintf(stderr, "request: %s\n", buffer.c_str());
+	    }
+
 	    /* Process the request based on type */
 	    switch (request.type()) {
+
 	    case directoryd::REGISTER:
 		success = register_services(registrar, active_services, header, request);
 		if (success == true) {
@@ -362,6 +381,7 @@ int main(int argc, char *const argv[]) {
 		    reply_failure(socket, header, directoryd::REGISTER, "Invalid request: missing REGISTER field");
 		}
 		break;
+
 	    case directoryd::UNREGISTER:
 		success = unregister_services(active_services, header, request, fail_reason);
 		if (success == true) {
@@ -371,6 +391,7 @@ int main(int argc, char *const argv[]) {
 		    reply_failure(socket, header, directoryd::UNREGISTER, fail_reason);
 		}
 		break;
+
 	    case directoryd::FIND:
 		result.clear();
 		success = find_services(browser, request, result);
@@ -381,6 +402,7 @@ int main(int argc, char *const argv[]) {
 		    reply_failure(socket, header, directoryd::FIND, "Invalid request: missing FIND field");
 		}
 		break;
+
 	    case directoryd::HEARTBEAT:
 		/* Update disconnect timeouts */
 		update_timeouts(header, active_services);

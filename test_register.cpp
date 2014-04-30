@@ -6,12 +6,16 @@
 
 using namespace std;
 
-int main() {
-	Avahi::Registrar registrar;
-	while (registrar.ready() == false);
+int main()
+{
 
-	registrar.add("_hotdec._tcp", "fooservice", 1234, {{"foo", "bar"}, {"bar", "baz"}});
+    Avahi::Registrar registrar;
+    while (registrar.ready() == false);
 
-	sleep(10);
-	return 0;
+    registrar.add("_hotdec._tcp",
+		  "fooservice",
+		  1234,
+		  {{"foo", "bar"}, {"bar", "baz"}});
+    sleep(10);
+    return 0;
 }
