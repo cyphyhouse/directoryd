@@ -2,21 +2,14 @@
 #include <string>
 #include "register.hpp"
 
-int main() {
-    try {
-	char name[] = "hello 0";
-	DDClient::register_service("lol", 1234, {});
-	for (int i = 0; i < 10; ++i) {
-	    sleep(1);
-	    std::cout << "tick" << std::endl;
-	    DDClient::register_service(name, 5678+i, {});
-	    name[6]++;
-	}
+int main()
+{
+    for (int i = 0; i < 15; ++i)
+    {
+	char name[] = "new_copter";
+	DDClient::register_service(name, 1234, {});
+        sleep(1);
     }
-    catch (std::string &s) {
-	std::cout << s << std::endl;
-    }
-    sleep(1);
     return 0;
 }
 
