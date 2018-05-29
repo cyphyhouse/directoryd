@@ -244,7 +244,7 @@ void reply(void *socket,
     if (findresult.empty() == false) {
 	for (auto &r : findresult) {
 	    directoryd::ServiceReply::FindResult *findres = reply.add_findresult();
-	    findres->mutable_location()->set_host(r.hostname());
+	    findres->mutable_location()->set_address(r.address());
 	    findres->mutable_location()->set_port(r.port());
 	    for (auto &txt : r.txt()) {
 		directoryd::TxtField *txtfield = findres->add_txt();
@@ -333,9 +333,8 @@ int main(int argc, char *const argv[]) {
 	/* List of active services, key is the zeromq id assigned to the client */
 	unordered_map<string, ActiveServices*> active_services;
 
-	zctx_t *ctx = zctx_new();
-	void *socket = zsocket_new (ctx, ZMQ_ROUTER);
-	zsocket_bind (socket,"ipc:///tmp/directoryd");
+	zsock_t *socket = zsock_new (ZMQ_ROUTER);
+	zsock_bind (socket,"ipc:///tmp/directoryd");
 	chmod("/tmp/directoryd", S_IRWXO|S_IRWXU|S_IRWXG);
 
 	directoryd::ServiceRequest request;
