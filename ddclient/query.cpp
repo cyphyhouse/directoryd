@@ -69,7 +69,7 @@ namespace DDClient {
 	for (int i = 0; i < reply.findresult_size(); ++i) {
 	    Service s;
 	    auto location = reply.findresult(i).location();
-	    s.hostname = location.host();
+	    s.address = location.address();
 	    s.port = location.port();
 	    for (int j = 0; j < reply.findresult(i).txt_size(); ++j) {
 		auto t = reply.findresult(i).txt(j);

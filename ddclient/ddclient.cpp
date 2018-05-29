@@ -13,8 +13,8 @@ namespace DDClient {
 	query_socket_ = zmq_socket(context_, ZMQ_DEALER);
 	register_socket_  = zmq_socket(context_, ZMQ_DEALER);
 
-	zsocket_set_identity (query_socket_, "DDclient::query");
-	zsocket_set_identity (register_socket_, "DDclient::register");
+	zsock_set_identity (query_socket_, "DDclient::query");
+	zsock_set_identity (register_socket_, "DDclient::register");
 
 	assert(zmq_connect (query_socket_,"ipc:///tmp/directoryd") == 0);
 	assert(zmq_connect (register_socket_,"ipc:///tmp/directoryd") == 0);

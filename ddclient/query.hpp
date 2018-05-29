@@ -10,7 +10,7 @@
 
 namespace DDClient {
     struct Service {
-	std::string hostname;
+	std::string address;
 	int port;
 	std::map<std::string, std::string> txt;
     };

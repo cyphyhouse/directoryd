@@ -4,9 +4,9 @@
 
 int main() {
     try {
-	auto result = DDClient::find({{"type", "vision"}, {"format", "protobuf"}}, "ruby-vision");
+	auto result = DDClient::find({}, "new_copter");
 	for (auto &r : result) {
-	    std::cout << r.hostname << ":" << r.port << std::endl;
+	    std::cout << r.address << ":" << r.port << std::endl;
 	}
     }
     catch (std::string &s) {
