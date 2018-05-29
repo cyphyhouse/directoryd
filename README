@@ -5,6 +5,8 @@ This is a software package that provides service directory support for
 the HoTDeC testbed. It uses a decentralized architecture to
 automatically discover services on other nodes.
 
+I (Daniel) edited this so that we could use this for the quadcopter for device discovery.
+
 Requirements
 ------------
 
@@ -16,9 +18,21 @@ Requirements
 Build & Installation
 --------------------
 
+First make sure you have the protobuf compiler installed so that you can do
+    protoc --cpp_out=protobuf Services.proto
+    
+Then do
+
     mkdir build
     cd build
     cmake ..
+    
+But then you gotta edit the flags.make files for both
+CMakeFiles/ddclient++.dir/
+and
+CMakeFiles/directoryd.dir/
+by adding -Wno-unused-parameter to the list of compiler flags. Now you can run
+
     make
 
 You can change the installation location by changing the
