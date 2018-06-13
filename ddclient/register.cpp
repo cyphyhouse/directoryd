@@ -68,7 +68,7 @@ namespace DDClient {
 	auto *r = request.mutable_register_();
 	auto l = r->add_location();
 	l->set_port(port);
-	l->set_type("_hotdec._tcp");
+	l->set_type("starl");
 	r->set_name(name);
 	for (auto &t : txt) {
 	    auto txtfield = r->add_txt();
