@@ -22,7 +22,7 @@ namespace DDClient {
 	directoryd::ServiceRequest request;
 	request.set_type(directoryd::FIND);
 	directoryd::ServiceRequest::Find *f = request.mutable_find();
-	f->set_type("_hotdec._tcp");
+	f->set_type("starl");
 	if (name.empty() == false) {
 	    f->set_name(name);
 	}
