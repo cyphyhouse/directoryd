@@ -1,16 +1,35 @@
 #include <iostream>
 #include <string>
+#include <iostream>
+#include <fstream>
 #include "query.hpp"
 
-int main(int argc, char * argv[]) 
+int main()
 {
-    if (argc < 2)
+    std::ifstream vehicles("vehicles.txt");
+    std::ofstream addresses("addresses.txt");
+    if (vehicles.fail())
     {
-        std::cout << "Need a parameter\n";
+        std::cout << "vehicles.txt not found\n";
         return -1;
     }
-    auto result = DDClient::find({{"type", argv[1]}}, "new_copter");
-    for (auto &r : result)
-        std::cout << r.address << ":" << r.port << std::endl;
+    while (!vehicles.eof())
+    {
+        std::string vehicle_type;
+        int vehicle_number;
+        vehicles >> vehicle_type >> vehicle_number;
+        while (vehicle_number)
+        {
+            auto result = DDClient::find({}, vehicle_type + std::to_string(vehicle_number));
+            if (!result.empty())
+            {
+                addresses << result.back().address << std::endl;
+                --vehicle_number;
+            }
+            sleep(1);
+        }
+    }
+    vehicles.close();
+    addresses.close();
     return 0;
 }
