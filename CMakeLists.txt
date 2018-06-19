@@ -7,11 +7,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 #set(CMAKE_SHARED_LINKER_FLAGS "-flto")
 #set(CMAKE_MODULE_LINKER_FLAGS "-flto")
 #set(CMAKE_C_FLAGS "-Ofast -flto")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-unused-parameter -Wextra -Werror -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++0x")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c1x")
 
-#find_library(ZMQ_LIBRARY NAMES zmq libzmq)
+find_library(ZMQPP_LIBRARY NAMES zmq libzmq)
 find_library(ZMQ_LIBRARY NAMES czmq)
 find_library(PROTOBUF_LIBS NAMES protobuf)
 find_library(AVAHI_LIBS NAMES avahi-client)
@@ -20,6 +20,7 @@ find_path(ZMQ_INCLUDE czmq.h)
 find_path(AVAHI_INCLUDE avahi-client/client.h)
 
 set(ZMQ_LIBS ${ZMQ_LIBRARY})
+set(ZMQPP_LIBS ${ZMQPP_LIBRARY})
 
 include_directories(${ZMQ_INCLUDE} ${AVAHI_INCLUDE})
 
@@ -47,10 +48,10 @@ add_library(ddclient++ SHARED ddclient/ddclient.cpp ddclient/query.cpp ddclient/
 target_link_libraries(ddclient++ ${ZMQ_LIBS} ${PROTOBUF_LIBS})
 
 add_executable(test_query ddclient/test_query.cpp)
-target_link_libraries(test_query ddclient++)
+target_link_libraries(test_query ${ZMQPP_LIBS} ddclient++)
 
 add_executable(test_reg ddclient/test_register.cpp)
-target_link_libraries(test_reg ddclient++)
+target_link_libraries(test_reg ${ZMQPP_LIBS} ddclient++)
 
 INSTALL(FILES Browser.hpp Registrar.hpp Service.hpp ServiceGroup.hpp Avahi.hpp
         DESTINATION include/avahi++)

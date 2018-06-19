@@ -26,13 +26,6 @@ Then do
     mkdir build
     cd build
     cmake ..
-    
-But then you gotta edit the flags.make files for both
-CMakeFiles/ddclient++.dir/
-and
-CMakeFiles/directoryd.dir/
-by adding -Wno-unused-parameter to the list of compiler flags. Now you can run
-
     make
 
 You can change the installation location by changing the
