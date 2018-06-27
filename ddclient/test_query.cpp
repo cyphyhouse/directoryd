@@ -8,7 +8,7 @@ int main()
 {
     zmq::context_t context (1);
     zmq::socket_t publisher (context, ZMQ_PUB);
-    publisher.bind("tcp://*:5556");
+    publisher.bind("epgm://intwifi0;239.192.1.1:5555");
 
     std::ifstream vehicles("vehicles.txt");
     std::ofstream addresses("addresses.txt");

@@ -16,6 +16,7 @@ find_library(ZMQ_LIBRARY NAMES czmq)
 find_library(PROTOBUF_LIBS NAMES protobuf)
 find_library(AVAHI_LIBS NAMES avahi-client)
 find_library(AVAHI_COMMON_LIBS NAMES avahi-common)
+find_library(THREADS NAMES pthread)
 find_path(ZMQ_INCLUDE czmq.h)
 find_path(AVAHI_INCLUDE avahi-client/client.h)
 
@@ -51,7 +52,7 @@ add_executable(test_query ddclient/test_query.cpp)
 target_link_libraries(test_query ${ZMQPP_LIBS} ddclient++)
 
 add_executable(test_reg ddclient/test_register.cpp)
-target_link_libraries(test_reg ${ZMQPP_LIBS} ddclient++)
+target_link_libraries(test_reg ${ZMQPP_LIBS} ${THREADS} ddclient++)
 
 INSTALL(FILES Browser.hpp Registrar.hpp Service.hpp ServiceGroup.hpp Avahi.hpp
         DESTINATION include/avahi++)
