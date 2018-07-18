@@ -19,11 +19,15 @@ def generatescript(key,ip):
     s+= "python testmainupdate.py " + str(key) + " " + str(ip) +"\n"
     s+= "cp TestMain.java ../src/main/java/testmain/\n"
     s+= "cp BotInfoSelector.java ../src/main/java/testmain/\n"
-    s+= "mvn compile\n"
-    s+= "mvn clean install\n"
-    s+= "git add -A\n"
-    s+= 'git commit -m "update"\n'
-    s+= "git push\n"
+    #s+= "mvn compile\n"
+    #s+= "mvn clean install\n"
+    #s+= "git checkout quadcopter\n"
+    #s+= "git add -A\n"
+    #s+= 'git commit -m "update"\n'
+    #s+= "git push\n"
+    s+= "echo "+'"'+str(ip)+'"\n'
+    s+= "./simpleclient "+str(ip)
+    s+= "echo "+'"done"\n'
     s+= "#add lines for functions for and waiting for messages" 
     return s 
     
