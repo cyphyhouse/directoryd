@@ -31,7 +31,7 @@ int main()
 
         DDClient::register_service("quadcopter1", 1234, {{"type", "quadcopter"}});
 
-	signal = (char *) update.data();
+        signal = (char *) update.data();
 
         flag = signal.compare("stop 1");
 

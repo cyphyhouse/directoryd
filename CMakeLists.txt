@@ -28,11 +28,11 @@ include_directories(${ZMQ_INCLUDE} ${AVAHI_INCLUDE})
 add_library(avahi++ SHARED Avahi.cpp Browser.cpp Registrar.cpp)
 target_link_libraries(avahi++ ${AVAHI_LIBS})
 
-add_executable(test_browse test_browse.cpp)
-target_link_libraries(test_browse avahi++  ${AVAHI_LIBS}  ${AVAHI_COMMON_LIBS})
+add_executable(simple_client simple_client.cpp)
+target_link_libraries(simple_client ${ZMQPP_LIBS})
 
-add_executable(test_register test_register.cpp)
-target_link_libraries(test_register avahi++  ${AVAHI_LIBS}  ${AVAHI_COMMON_LIBS})
+add_executable(simple_server simple_server.cpp)
+target_link_libraries(simple_server ${ZMQPP_LIBS}) 
 
 add_custom_command(OUTPUT "${PROJECT_SOURCE_DIR}/protobuf/Services.pb.cc"
                           "${PROJECT_SOURCE_DIR}/protobuf/Services.pb.h"
