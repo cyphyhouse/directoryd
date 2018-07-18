@@ -26,7 +26,7 @@ def generatescript(key,ip):
     #s+= 'git commit -m "update"\n'
     #s+= "git push\n"
     s+= "echo "+'"'+str(ip)+'"\n'
-    s+= "./simpleclient "+str(ip)
+    s+= "./simpleclient "+str(ip)+"\n"
     s+= "echo "+'"done"\n'
     s+= "#add lines for functions for and waiting for messages" 
     return s 
