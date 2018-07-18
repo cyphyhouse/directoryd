@@ -1,55 +1,40 @@
+#!/bin/bash
+import sys 
 MAIN = 0
 QUADCOPTER = 1 
+def getips(ipfile):
+    f = open(ipfile,"r")
+    l = f.readlines()
+    botdict = {}
+    for line in l:
+        p = line.strip().split(" ")
+        botdict[p[1]] = p[2]
+    return botdict
 
+#print botdict
 
-def updatetestmain(testmainfile,botnum,indents):
-    lineno = 0
-    f = open(testmainfile,"r")
+def generatescript(key,ip):
     s = ""
-    first = True
-    for line in f.readlines():
-        if "selectedRobot" in line and first:
-            s += indents*" "+"private static int selectedRobot = "+ str(botnum)+";\n"
-            first = False 
-        else:
-            s+= line 
-    f.close() 
-    f = open(testmainfile,"w")
-    f.write(s)
-    f.close() 
-
-def updatebotinfo(botinfofile,botnum,botip,indents):
-    lineno = 0
-    f = open(botinfofile,"r")
-    s = ""
-    first = True
-    second = False
-    skip = False
-    ipline = indents*" "+ 'ip = "'+botip + '";';
-    for line in f.readlines():
-        if skip:
-           s+= ipline
-           skip = False 
-           continue
-
-        if "NEXUS7" in line and first and botnum == 0:
-           s += line
-           first = False
-           second = True
-           skip = True
-
-        elif "NEXUS7" in line and second and botnum == 1:
-           s += line
-           second = False
-           skip = True
-        else:
-            s+= line 
-
-    f.close() 
-    f = open(botinfofile,"w")
-    f.write(s)
-    f.close() 
-       
-
-updatetestmain("testmainfile",8,8)
-updatebotinfo("botinfofile",0,"testup",4)
+    s+= "python botinfoupdate.py " + str(key) + " " + str(ip) +"\n"
+    s+= "python testmainupdate.py " + str(key) + " " + str(ip) +"\n"
+    s+= "cp TestMain.java ../src/main/java/testmain/\n"
+    s+= "cp BotInfoSelector.java ../src/main/java/testmain/\n"
+    s+= "mvn compile\n"
+    s+= "mvn clean install\n"
+    s+= "git add -A\n"
+    s+= 'git commit -m "update"\n'
+    s+= "git push\n"
+    s+= "#add lines for functions for and waiting for messages" 
+    return s 
+    
+    
+launchscript = "launch.sh"
+s = "#!/bin/bash\n\n"
+ipdict = getips("addresses.txt") 
+for key in ipdict.keys():
+    s+= generatescript(key,ipdict[key]) 
+f = open(launchscript,"w") 
+f.write(s)
+f.close()
+#print botdict.keys()
+#updatebotinfo("botinfofile",1,botdict['1'],4)
