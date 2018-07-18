@@ -8,7 +8,7 @@ int main()
 {
     zmq::context_t context (1);
     zmq::socket_t publisher (context, ZMQ_PUB);
-    publisher.bind("epgm://intwifi0;239.192.1.1:5555");
+    publisher.bind("epgm://wlp3s0;239.192.1.1:5555");
 
     std::ifstream vehicles("vehicles.txt");
     std::ofstream addresses("addresses.txt");
@@ -32,7 +32,7 @@ int main()
             if (!result.empty())
             {
                 zmq::message_t message (8);
-                addresses << result.back().address << std::endl;
+                addresses << vehicle_type << " " << vehicle_number << " " << result.back().address << std::endl;
                 snprintf ((char *) message.data(), 8, "stop %d", vehicle_number);
                 publisher.send(message);
                 --vehicle_number;
