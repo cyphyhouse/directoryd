@@ -17,7 +17,7 @@ int main()
     std::cout << "Received stop message" << std::endl;
 
     sleep(1);
-    FILE * output = popen("git pull", "w");
+    FILE * output = popen("cd .. && git pull", "w");
     pclose(output);
 
     zmq::message_t reply (3);
