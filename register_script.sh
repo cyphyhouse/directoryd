@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 directoryd -d
 ./bin/test_reg
