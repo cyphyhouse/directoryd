@@ -10,9 +10,9 @@ I (Daniel) edited this so that we could use this for the quadcopter for device d
 Requirements
 ------------
 
-* czmq
-* Avahi
-* Protocol Buffers
+* czmq              (sudo apt-get install libczmq-dev)
+* Avahi             (sudo apt-get install libavahi-client-dev)
+* Protocol Buffers  (sudo apt-get install protobuf-compiler)
 * cmake
 
 Build & Installation
