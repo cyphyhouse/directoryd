@@ -8,6 +8,8 @@ int main()
 {
     zmq::context_t context (1);
     zmq::socket_t publisher (context, ZMQ_PUB);
+    // change the "wlp3s0" to be your wifi interface
+    // you can see yours with "ip link"
     publisher.bind("epgm://wlp3s0;239.192.1.1:5555");
 
     std::ifstream vehicles("vehicles.txt");
