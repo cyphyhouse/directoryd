@@ -12,22 +12,49 @@ Requirements
 
 * czmq              (sudo apt-get install libczmq-dev)
 * Avahi             (sudo apt-get install libavahi-client-dev)
-* Protocol Buffers  (sudo apt-get install protobuf-compiler)
+* Protocol Buffers  (sudo apt-get install libprotobuf-dev)
+* Protocol Compiler (sudo apt-get install protobuf-compiler)
 * cmake
 
 Build & Installation
 --------------------
+First make sure to look at ddclient/test_query.cpp on your laptop in order
+to fill out the field for your wifi interface marked by a comment
 
-First make sure you have the protobuf compiler installed so that you can do
+Then add all the vehicles that you are using to the vehicles.txt file. For
+example, if you have 2 quadcopters and 1 car you write:
+    quadcopter 2
+    car 1
+    
+Then make sure to look at ddclient/test_register.cpp on the vehicles in order
+to change the vehicle type and ids marked by the comments. By the previous
+example, one quadcopter would have "quadcopter1" and the second "quadcopter2"
+and the car would have "car1". "quadcopter1" would have "stop 1" and 
+"quadcopter2" would have "stop 2" and "car1" would have "stop 1" again.
+
+Make sure that protoc and your libprotobuf libraries are the same version.
+Then make sure you have the protobuf compiler installed so that you can do
+
     protoc --cpp_out=protobuf Services.proto
     
-Then do
+Then in the directoryd directory do
 
     mkdir build
     cd build
     cmake ..
     make
 
+When running directoryd, make sure that avahi has started. If you're using
+systemctl just run:
+
+    sudo systemctl start avahi-daemon
+    
+The quadcopters already run this when they start by default.
+
+On your laptop: run ./query_script.sh
+On the vehicles run ./register_script.sh
+
+Not really important:
 You can change the installation location by changing the
 CMAKE_INSTALL_PREFIX:
 
